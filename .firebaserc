@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "exp-protocol"
+  },
+  "targets": {},
+  "etags": {
+    "exp-protocol": {
+      "extensionInstances": {
+        "moralis-streams": "0d6c1d33d039ea548fc3863e2fcf0d156e7f5ff9c5580b40037cd3dafdad0b57"
+      }
+    }
+  }
+}

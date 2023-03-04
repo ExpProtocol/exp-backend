@@ -1,8 +1,15 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { Network, Alchemy } from "alchemy-sdk";
+const { ethers } = require("ethers");
+const { abi } = require("./abi.json");
+
 admin.initializeApp();
 const db = admin.firestore();
+
+//for isBorrowableScheduled
+// const contract = require("../artifacts/contracts/HelloWorld.sol/HelloWorld.json");
+
 
 // // Start writing functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -11,12 +18,41 @@ const db = admin.firestore();
 //   functions.logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-exports.scheduledFunctionCrontab = functions.pubsub.schedule('5 11 * * *')
+export const isBorrowableScheduled = functions.pubsub.schedule('5 11 * * *')
   .timeZone('America/New_York') // Users can choose timezone - default is America/Los_Angeles
-  .onRun((context) => {
-    
-  console.log('This will be run every day at 11:05 AM Eastern!');
-  return null;
+  .onRun(async (context) => {
+    const q = await db.collection("lend").where("isActive", "==", true).where("isRent", "==", false).get()
+    .then((querySnapshot) => {
+        querySnapshot.forEach(async (doc) => {
+            let chain:any = Network.ETH_MAINNET
+            if (doc.data().chainId == String(5)) {
+                chain = Network.ETH_GOERLI;
+            }
+            if (doc.data().chainId == String(1)) {
+                chain = Network.ETH_MAINNET;
+            }
+            if (doc.data().chainId == String(137)) {
+                chain = Network.MATIC_MAINNET;
+            }
+            if (doc.data().chainId == String(80001)) {
+                chain = Network.MATIC_MUMBAI;
+            }
+            const lenddb: any = doc.data();
+            const lendId:Number = Number(lenddb.lendId);
+            const alchemyProvider = new ethers.providers.AlchemyProvider(chain, process.env.ALCHEMY);
+            const marketContract = new ethers.Contract(String(process.env.CONTRACT_ADDRESS), abi, alchemyProvider);
+            const isBorrowable:Boolean = await marketContract.isBorrowable(lendId);
+            console.log(isBorrowable, "isBorrowable");
+            lenddb.update({
+                isBorrowable: isBorrowable,
+            })
+            // doc.data() is never undefined for query doc snapshots
+            console.log(doc.id, " => ", doc.data());
+    });
+    })
+    console.log(q, "q");
+    console.log('This will be run every day at 11:05 AM Eastern!');
+    return null;
 });
 
 
@@ -30,7 +66,7 @@ export const onItemWrite = functions.firestore
             console.log(event.name, "name");
             console.log(event.lendId, "lendId");
 
-            const lenddb: any = db.collection("database-main").doc(String(event.chainId)+"-"+String(event.lendId));
+            const lenddb: any = db.collection("lend").doc(String(event.chainId)+"-"+String(event.lendId));
             if (event.name == "RentStarted") {
                 console.log("rent event");
                 let isGuarantor: boolean;
@@ -63,7 +99,12 @@ export const onItemWrite = functions.firestore
                 lenddb.update({
                     lendId: String(event.lendId),
                     isRent: false,
-                    isActive: true,
+                    isActive: event.autoReRegister,
+                    renter: "",
+                    guarantor: "",
+                    guarantorBalance: "",
+                    guarantorFee: "",
+                    isGuarantor: false,
                 })
             }
 
@@ -92,7 +133,7 @@ export const onItemWrite = functions.firestore
                 if (event.name == "ERC721LendRegistered") {
                     console.log("lend 721 event");
                     lenddb.set({
-                        chianId: String(event.chainId),
+                        chainId: String(event.chainId),
                         lendId: String(event.lendId),
                         lender: String(event.lender),
                         collectionAddress: String(event.token),
@@ -107,6 +148,7 @@ export const onItemWrite = functions.firestore
                         tokenType: String(721),
                         tokenName: String(nftData.title),
                         tokenImage: String(nftData.media[0].gateway),
+                        collectionName: String(nftData.contract.name)
 
 
                     }, { merge: true }
@@ -115,7 +157,7 @@ export const onItemWrite = functions.firestore
                 if (event.name == "ERC1155LendRegistered") {
                     console.log("lend 1155 event");
                     lenddb.set({
-                        chianId: String(event.chainId),
+                        chainId: String(event.chainId),
                         lendId: String(event.lendId),
                         lender: String(event.lender),
                         collectionAddress: String(event.token),
@@ -130,13 +172,14 @@ export const onItemWrite = functions.firestore
                         tokenType: String(1155),
                         tokenName: String(nftData.rawMetadata.name),
                         tokenImage: String(nftData.media.gateway),
+                        collectionName: String(nftData.contract.name)
 
                     }, { merge: true }
                     )
                 }
                 
                     
-                const docRef = db.collection("collection").doc(String(event.chainId)+"-"+String(event.collectionAddress));
+                const docRef = db.collection("collection").doc(String(event.chainId)+"-"+String(event.token));
                 const docSnapshot = await docRef.get();
                 if (!docSnapshot.exists) {
                     console.log("write collection");
@@ -151,9 +194,4 @@ export const onItemWrite = functions.firestore
                 }  
             }
         }
-
-
-        
-
-    
     );

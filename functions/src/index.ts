@@ -129,9 +129,14 @@ export const onItemWrite = functions.firestore
                 const alchemy = new Alchemy(settings);
                 const nftData:any = await alchemy.nft.getNftMetadata(event.token, event.tokenId);
                 console.log(nftData, "nftData");
-                
+                let tokenImage: string;
+                    if (nftData.media.length == 0) {
+                        tokenImage = "";
+                    } else {
+                        tokenImage = nftData.media[0].gateway;
+                    }
                 if (event.name == "ERC721LendRegistered") {
-                    console.log("lend 721 event");
+                    console.log("lend 721 event");                    
                     lenddb.set({
                         chainId: String(event.chainId),
                         lendId: String(event.lendId),
@@ -147,7 +152,7 @@ export const onItemWrite = functions.firestore
                         autoReRegister: Boolean(event.autoReRegister),
                         tokenType: String(721),
                         tokenName: String(nftData.title),
-                        tokenImage: String(nftData.media[0].gateway),
+                        tokenImage: tokenImage,
                         collectionName: String(nftData.contract.name)
 
 
@@ -171,7 +176,7 @@ export const onItemWrite = functions.firestore
                         autoReRegister: Boolean(event.autoReRegister),
                         tokenType: String(1155),
                         tokenName: String(nftData.rawMetadata.name),
-                        tokenImage: String(nftData.media.gateway),
+                        tokenImage: tokenImage,
                         collectionName: String(nftData.contract.name)
 
                     }, { merge: true }
@@ -187,7 +192,7 @@ export const onItemWrite = functions.firestore
                         chainId: String(event.chainId),
                         collectionName: String(nftData.contract.name),
                         collectionAddress: String(event.token),
-                        collectionImage: String(nftData.media.gateway),
+                        collectionImage: tokenImage,
                         isWhitelist: false,
                     }, { merge: true }                    
                     )

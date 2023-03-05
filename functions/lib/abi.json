@@ -1,9 +1,94 @@
 {
     "abi":[
         {
-          "inputs": [],
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "receiver_",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "erc721Adapter_",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "erc1155Adapter_",
+              "type": "address"
+            }
+          ],
           "stateMutability": "nonpayable",
           "type": "constructor"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "old721adapter",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "new721adapter",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "old1155adapter",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "new1155adapter",
+              "type": "address"
+            }
+          ],
+          "name": "AdaptersUpdated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "payment",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "FeeClaimed",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint96",
+              "name": "lendId",
+              "type": "uint96"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "lender",
+              "type": "address"
+            }
+          ],
+          "name": "LendCanceled",
+          "type": "event"
         },
         {
           "anonymous": false,
@@ -66,122 +151,6 @@
           "name": "LendRegistered",
           "type": "event"
         },
-    {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "uint96",
-              "name": "lendId",
-              "type": "uint96"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "lender",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "payment",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "tokenId",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint120",
-              "name": "pricePerSec",
-              "type": "uint120"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint120",
-              "name": "totalPrice",
-              "type": "uint120"
-            },
-            {
-              "indexed": false,
-              "internalType": "bool",
-              "name": "autoReRegister",
-              "type": "bool"
-            }
-          ],
-          "name": "ERC721LendRegistered",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "uint96",
-              "name": "lendId",
-              "type": "uint96"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "lender",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "payment",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "tokenId",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint120",
-              "name": "pricePerSec",
-              "type": "uint120"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint120",
-              "name": "totalPrice",
-              "type": "uint120"
-            },
-            {
-              "indexed": false,
-              "internalType": "bool",
-              "name": "autoReRegister",
-              "type": "bool"
-            }
-          ],
-          "name": "ERC1155LendRegistered",
-          "type": "event"
-        },
         {
           "anonymous": false,
           "inputs": [
@@ -224,6 +193,44 @@
           "anonymous": false,
           "inputs": [
             {
+              "indexed": false,
+              "internalType": "address",
+              "name": "oldReceiver",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "newReceiver",
+              "type": "address"
+            }
+          ],
+          "name": "ReceiverUpdated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint96",
+              "name": "lendId",
+              "type": "uint96"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "lender",
+              "type": "address"
+            }
+          ],
+          "name": "RentClaimed",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
               "indexed": true,
               "internalType": "uint96",
               "name": "lendId",
@@ -234,6 +241,12 @@
               "internalType": "address",
               "name": "renter",
               "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bool",
+              "name": "autoReRegister",
+              "type": "bool"
             }
           ],
           "name": "RentReturned",
@@ -255,6 +268,12 @@
               "type": "address"
             },
             {
+              "indexed": false,
+              "internalType": "uint96",
+              "name": "startTime",
+              "type": "uint96"
+            },
+            {
               "indexed": true,
               "internalType": "address",
               "name": "guarantor",
@@ -263,13 +282,13 @@
             {
               "indexed": false,
               "internalType": "uint120",
-              "name": "guarantBalance",
+              "name": "guarantorBalance",
               "type": "uint120"
             },
             {
               "indexed": false,
               "internalType": "uint16",
-              "name": "guarantFee",
+              "name": "guarantorFee",
               "type": "uint16"
             }
           ],
@@ -352,6 +371,48 @@
           "type": "event"
         },
         {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
+            },
+            {
+              "indexed": false,
+              "internalType": "bool",
+              "name": "supported",
+              "type": "bool"
+            }
+          ],
+          "name": "SupportedInterfaceIdUpdated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "bytes4",
+              "name": "selector",
+              "type": "bytes4"
+            },
+            {
+              "indexed": false,
+              "internalType": "bool",
+              "name": "supported",
+              "type": "bool"
+            }
+          ],
+          "name": "SupportedReceiveSelectorUpdated",
+          "type": "event"
+        },
+        {
+          "stateMutability": "payable",
+          "type": "fallback"
+        },
+        {
           "inputs": [],
           "name": "DEFAULT_ADMIN_ROLE",
           "outputs": [
@@ -366,12 +427,25 @@
         },
         {
           "inputs": [],
-          "name": "_protocolFee",
+          "name": "GUARANTOR_REQUEST_TYPE_HASH",
           "outputs": [
             {
-              "internalType": "uint16",
+              "internalType": "bytes32",
               "name": "",
-              "type": "uint16"
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "PROTOCOL_OWNER_ROLE",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
             }
           ],
           "stateMutability": "view",
@@ -430,6 +504,32 @@
               "internalType": "uint256",
               "name": "",
               "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "erc1155Adapter",
+          "outputs": [
+            {
+              "internalType": "contract ERC1155Adapter",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "erc721Adapter",
+          "outputs": [
+            {
+              "internalType": "contract ERC721Adapter",
+              "name": "",
+              "type": "address"
             }
           ],
           "stateMutability": "view",
@@ -561,6 +661,87 @@
         {
           "inputs": [
             {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "payment",
+              "type": "address"
+            },
+            {
+              "internalType": "uint120",
+              "name": "pricePerSec",
+              "type": "uint120"
+            },
+            {
+              "internalType": "uint120",
+              "name": "totalPrice",
+              "type": "uint120"
+            },
+            {
+              "internalType": "bool",
+              "name": "autoReRegister",
+              "type": "bool"
+            }
+          ],
+          "name": "lend1155",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "payment",
+              "type": "address"
+            },
+            {
+              "internalType": "uint120",
+              "name": "pricePerSec",
+              "type": "uint120"
+            },
+            {
+              "internalType": "uint120",
+              "name": "totalPrice",
+              "type": "uint120"
+            },
+            {
+              "internalType": "bool",
+              "name": "autoReRegister",
+              "type": "bool"
+            }
+          ],
+          "name": "lend721",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
               "internalType": "uint96",
               "name": "lendId",
               "type": "uint96"
@@ -614,12 +795,51 @@
         },
         {
           "inputs": [],
+          "name": "lendCount",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
           "name": "minimalRentTime",
           "outputs": [
             {
               "internalType": "uint96",
               "name": "",
               "type": "uint96"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "protocolFee",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "receiver",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
             }
           ],
           "stateMutability": "view",
@@ -671,44 +891,6 @@
         {
           "inputs": [
             {
-              "internalType": "uint96",
-              "name": "lendId",
-              "type": "uint96"
-            },
-            {
-              "internalType": "address",
-              "name": "payment",
-              "type": "address"
-            },
-            {
-              "internalType": "uint120",
-              "name": "pricePerSec",
-              "type": "uint120"
-            },
-            {
-              "internalType": "uint120",
-              "name": "totalPrice",
-              "type": "uint120"
-            },
-            {
-              "internalType": "bool",
-              "name": "autoReRegister",
-              "type": "bool"
-            },
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
-            }
-          ],
-          "name": "renewalLend",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
               "internalType": "bytes32",
               "name": "role",
               "type": "bytes32"
@@ -749,28 +931,28 @@
           "outputs": [
             {
               "internalType": "address",
-              "name": "payment",
+              "name": "renter",
+              "type": "address"
+            },
+            {
+              "internalType": "uint96",
+              "name": "startTime",
+              "type": "uint96"
+            },
+            {
+              "internalType": "address",
+              "name": "guarantor",
               "type": "address"
             },
             {
               "internalType": "uint120",
-              "name": "pricePerSec",
+              "name": "guarantorBalance",
               "type": "uint120"
             },
             {
-              "internalType": "uint120",
-              "name": "totalPrice",
-              "type": "uint120"
-            },
-            {
-              "internalType": "bool",
-              "name": "autoReRegister",
-              "type": "bool"
-            },
-            {
-              "internalType": "bytes",
-              "name": "data",
-              "type": "bytes"
+              "internalType": "uint16",
+              "name": "guarantorFee",
+              "type": "uint16"
             }
           ],
           "stateMutability": "view",
@@ -790,12 +972,12 @@
             },
             {
               "internalType": "uint120",
-              "name": "guarantBalance",
+              "name": "guarantorBalance",
               "type": "uint120"
             },
             {
               "internalType": "uint16",
-              "name": "guarantFee",
+              "name": "guarantorFee",
               "type": "uint16"
             },
             {
@@ -846,6 +1028,42 @@
               "internalType": "bytes4",
               "name": "interfaceId",
               "type": "bytes4"
+            },
+            {
+              "internalType": "bool",
+              "name": "supported",
+              "type": "bool"
+            }
+          ],
+          "name": "setSupportedInterface",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "selector",
+              "type": "bytes4"
+            },
+            {
+              "internalType": "bool",
+              "name": "supported",
+              "type": "bool"
+            }
+          ],
+          "name": "setSupportedReceiveSelector",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes4",
+              "name": "interfaceId",
+              "type": "bytes4"
             }
           ],
           "name": "supportsInterface",
@@ -862,12 +1080,62 @@
         {
           "inputs": [
             {
+              "internalType": "bytes4",
+              "name": "selector",
+              "type": "bytes4"
+            }
+          ],
+          "name": "supportsReceiveSelector",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "erc721Adapter_",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "erc1155Adapter_",
+              "type": "address"
+            }
+          ],
+          "name": "updateAdapters",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
               "internalType": "uint96",
               "name": "minimalRentTime_",
               "type": "uint96"
             }
           ],
           "name": "updateMinimalRentTime",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "receiver_",
+              "type": "address"
+            }
+          ],
+          "name": "updateReceiver",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
@@ -903,6 +1171,387 @@
           ],
           "stateMutability": "view",
           "type": "function"
-        }
+        },
+        {
+          "stateMutability": "payable",
+          "type": "receive"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": true,
+                "internalType": "uint96",
+                "name": "lendId",
+                "type": "uint96"
+              },
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "lender",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "indexed": false,
+                "internalType": "address",
+                "name": "payment",
+                "type": "address"
+              },
+              {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              },
+              {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "indexed": false,
+                "internalType": "uint120",
+                "name": "pricePerSec",
+                "type": "uint120"
+              },
+              {
+                "indexed": false,
+                "internalType": "uint120",
+                "name": "totalPrice",
+                "type": "uint120"
+              },
+              {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "autoReRegister",
+                "type": "bool"
+              }
+            ],
+            "name": "ERC1155LendRegistered",
+            "type": "event"
+          },
+          {
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": true,
+                "internalType": "uint96",
+                "name": "lendId",
+                "type": "uint96"
+              },
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "lender",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "indexed": false,
+                "internalType": "address",
+                "name": "payment",
+                "type": "address"
+              },
+              {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              },
+              {
+                "indexed": false,
+                "internalType": "uint120",
+                "name": "pricePerSec",
+                "type": "uint120"
+              },
+              {
+                "indexed": false,
+                "internalType": "uint120",
+                "name": "totalPrice",
+                "type": "uint120"
+              },
+              {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "autoReRegister",
+                "type": "bool"
+              }
+            ],
+            "name": "ERC721LendRegistered",
+            "type": "event"
+          },
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "market",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "lender",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "isLocked",
+                "type": "bool"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              }
+            ],
+            "name": "cancelLendTransfer",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "market",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "lender",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "isLocked",
+                "type": "bool"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              }
+            ],
+            "name": "isBorrowable",
+            "outputs": [
+              {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "market",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              }
+            ],
+            "name": "isReturnable",
+            "outputs": [
+              {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+              }
+            ],
+            "name": "isValidData",
+            "outputs": [
+              {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "market",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "lender",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "renter",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "isLocked",
+                "type": "bool"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              }
+            ],
+            "name": "lendTransfer",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {
+                "internalType": "uint96",
+                "name": "lendId",
+                "type": "uint96"
+              },
+              {
+                "internalType": "address",
+                "name": "lender",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "payment",
+                "type": "address"
+              },
+              {
+                "internalType": "uint120",
+                "name": "pricePerSec",
+                "type": "uint120"
+              },
+              {
+                "internalType": "uint120",
+                "name": "totalPrice",
+                "type": "uint120"
+              },
+              {
+                "internalType": "bool",
+                "name": "autoReRegister",
+                "type": "bool"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              }
+            ],
+            "name": "logLend",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {
+                "internalType": "address",
+                "name": "market",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "lender",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "renter",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "autoReRegister",
+                "type": "bool"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              }
+            ],
+            "name": "returnTransfer",
+            "outputs": [
+              {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+              }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+
       ]
     }

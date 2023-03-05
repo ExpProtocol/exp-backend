@@ -82,6 +82,7 @@ export const onItemWrite = functions.firestore
                     guarantor: String(event.guarantor),
                     guarantorBalance: String(event.guarantorBalance),
                     guarantorFee: String(event.guarantorFee),
+                    startTime: String(event.startTime),
                     isRent: true,
                     isGuarantor: isGuarantor,
                 })
@@ -90,7 +91,7 @@ export const onItemWrite = functions.firestore
                 console.log("cancel event");
                 lenddb.update({
                     lendId: String(event.lendId),
-                    isActice: false,
+                    isActive: false,
                 })
             }
             //isActiveフラグをイベントの更新でいじる
@@ -99,7 +100,15 @@ export const onItemWrite = functions.firestore
                 lenddb.update({
                     lendId: String(event.lendId),
                     isRent: false,
-                    isActive: event.autoReRegister,
+                    isActive: event.autoReRegister,                    
+                })
+            }
+            if (event.name == "RentClaimed") {
+                console.log("claim event");
+                lenddb.update({
+                    lendId: String(event.lendId),  
+                    isRent: false,
+                    isActive: false,
                     renter: "",
                     guarantor: "",
                     guarantorBalance: "",
@@ -107,6 +116,9 @@ export const onItemWrite = functions.firestore
                     isGuarantor: false,
                 })
             }
+
+
+
 
             if (event.name == "ERC721LendRegistered" || event.name == "ERC1155LendRegistered") {
                 let chain:any = Network.ETH_MAINNET
@@ -129,9 +141,16 @@ export const onItemWrite = functions.firestore
                 const alchemy = new Alchemy(settings);
                 const nftData:any = await alchemy.nft.getNftMetadata(event.token, event.tokenId);
                 console.log(nftData, "nftData");
-                
+                let tokenImage: string;
+                    if (nftData.media.length == 0) {
+                        tokenImage = "";
+                    } else {
+                        tokenImage = nftData.media[0].gateway;
+                    }
                 if (event.name == "ERC721LendRegistered") {
                     console.log("lend 721 event");
+                    console.log(event.autoReRegister, "autoReRegister");
+                    console.log(Boolean(event.autoReRegister), "autoReRegisterBoolian");                 
                     lenddb.set({
                         chainId: String(event.chainId),
                         lendId: String(event.lendId),
@@ -143,11 +162,11 @@ export const onItemWrite = functions.firestore
                         paymentAddress: String(event.payment),
                         tokenAmount: String(1),
                         isRent: false,
-                        isActice: true,
+                        isActive: true,
                         autoReRegister: Boolean(event.autoReRegister),
                         tokenType: String(721),
                         tokenName: String(nftData.title),
-                        tokenImage: String(nftData.media[0].gateway),
+                        tokenImage: tokenImage,
                         collectionName: String(nftData.contract.name)
 
 
@@ -167,11 +186,11 @@ export const onItemWrite = functions.firestore
                         paymentAddress: String(event.payment),
                         tokenAmount: String(event.amount),
                         isRent: false,
-                        isActice: true,
+                        isActive: true,
                         autoReRegister: Boolean(event.autoReRegister),
                         tokenType: String(1155),
                         tokenName: String(nftData.rawMetadata.name),
-                        tokenImage: String(nftData.media.gateway),
+                        tokenImage: tokenImage,
                         collectionName: String(nftData.contract.name)
 
                     }, { merge: true }
@@ -187,7 +206,7 @@ export const onItemWrite = functions.firestore
                         chainId: String(event.chainId),
                         collectionName: String(nftData.contract.name),
                         collectionAddress: String(event.token),
-                        collectionImage: String(nftData.media.gateway),
+                        collectionImage: tokenImage,
                         isWhitelist: false,
                     }, { merge: true }                    
                     )

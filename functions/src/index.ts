@@ -44,7 +44,7 @@ export const isBorrowableScheduled = functions.pubsub.schedule('5 11 * * *')
             const isBorrowable:Boolean = await marketContract.isBorrowable(lendId);
             console.log(isBorrowable, "isBorrowable");
             lenddb.update({
-                isBorrowable: isBorrowable,
+                isActive: isBorrowable,
             })
             // doc.data() is never undefined for query doc snapshots
             console.log(doc.id, " => ", doc.data());
@@ -78,8 +78,8 @@ export const onItemWrite = functions.firestore
                     }
                 lenddb.update({
                     lendId: String(event.lendId),
-                    renter: String(event.renter),
-                    guarantor: String(event.guarantor),
+                    renter: String(event.renter).toLowerCase(),
+                    guarantor: String(event.guarantor).toLowerCase(),
                     guarantorBalance: String(event.guarantorBalance),
                     guarantorFee: String(event.guarantorFee),
                     startTime: String(event.startTime),
@@ -94,13 +94,17 @@ export const onItemWrite = functions.firestore
                     isActive: false,
                 })
             }
-            //isActiveフラグをイベントの更新でいじる
             if (event.name == "RentReturned") {
                 console.log("return event");
                 lenddb.update({
                     lendId: String(event.lendId),
                     isRent: false,
-                    isActive: event.autoReRegister,                    
+                    isActive: event.autoReRegister,   
+                    renter: "",
+                    guarantor: "",
+                    guarantorBalance: "",
+                    guarantorFee: "",
+                    isGuarantor: false,                 
                 })
             }
             if (event.name == "RentClaimed") {
@@ -108,12 +112,7 @@ export const onItemWrite = functions.firestore
                 lenddb.update({
                     lendId: String(event.lendId),  
                     isRent: false,
-                    isActive: false,
-                    renter: "",
-                    guarantor: "",
-                    guarantorBalance: "",
-                    guarantorFee: "",
-                    isGuarantor: false,
+                    isActive: false,                    
                 })
             }
 
@@ -150,20 +149,19 @@ export const onItemWrite = functions.firestore
                 if (event.name == "ERC721LendRegistered") {
                     console.log("lend 721 event");
                     console.log(event.autoReRegister, "autoReRegister");
-                    console.log(Boolean(event.autoReRegister), "autoReRegisterBoolian");                 
                     lenddb.set({
                         chainId: String(event.chainId),
                         lendId: String(event.lendId),
-                        lender: String(event.lender),
-                        collectionAddress: String(event.token),
+                        lender: String(event.lender).toLowerCase(),
+                        collectionAddress: String(event.token).toLowerCase(),
                         tokenId: String(event.tokenId),
                         perPrice: String(event.pricePerSec),
                         collateralPrice: String(event.totalPrice),
-                        paymentAddress: String(event.payment),
+                        paymentAddress: String(event.payment).toLowerCase(),
                         tokenAmount: String(1),
                         isRent: false,
                         isActive: true,
-                        autoReRegister: Boolean(event.autoReRegister),
+                        autoReRegister: event.autoReRegister,
                         tokenType: String(721),
                         tokenName: String(nftData.title),
                         tokenImage: tokenImage,
@@ -178,12 +176,12 @@ export const onItemWrite = functions.firestore
                     lenddb.set({
                         chainId: String(event.chainId),
                         lendId: String(event.lendId),
-                        lender: String(event.lender),
-                        collectionAddress: String(event.token),
+                        lender: String(event.lender).toLowerCase(),
+                        collectionAddress: String(event.token).toLowerCase(),
                         tokenId: String(event.tokenId),
                         perPrice: String(event.pricePerSec),
                         collateralPrice: String(event.totalPrice),
-                        paymentAddress: String(event.payment),
+                        paymentAddress: String(event.payment).toLowerCase(),
                         tokenAmount: String(event.amount),
                         isRent: false,
                         isActive: true,
@@ -205,7 +203,7 @@ export const onItemWrite = functions.firestore
                     docRef.set({
                         chainId: String(event.chainId),
                         collectionName: String(nftData.contract.name),
-                        collectionAddress: String(event.token),
+                        collectionAddress: String(event.token).toLowerCase(),
                         collectionImage: tokenImage,
                         isWhitelist: false,
                     }, { merge: true }                    
